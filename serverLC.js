@@ -477,10 +477,8 @@ app.get('/api/eventos2', verificarToken, (req, res) => {
 
 // #region Rotas GET
 
-// Rota Principal
-// Rota POST para validar o token
-
-app.get("/solicitacoes", async function (req, res) {
+// Rota para buscar eventos "em análise"
+app.get('/api/eventos/em-analise', verificarToken, async (req, res) => {
     try {
         const dataAtual = new Date();
         const data = dataAtual.toLocaleDateString('en-CA');
@@ -504,9 +502,7 @@ app.get("/solicitacoes", async function (req, res) {
             return res.status(404).json({ message: 'Nenhum evento em análise encontrado.' });
         }
 
-        res.render('solicitacaoEventosAdm', {
-            eventsInReview: eventsInReview.map(event => event.dataValues)
-        });
+        res.json(eventsInReview);
     } catch (err) {
         console.error("Erro ao buscar eventos:", err);
         res.status(500).json({ error: 'Erro interno no servidor ao buscar eventos.' });
@@ -514,7 +510,7 @@ app.get("/solicitacoes", async function (req, res) {
 });
 
 
-app.get("/eventos-futuros", async function (req, res) {
+app.get("/api/eventos/eventos-futuros", verificarToken, async function (req, res) {
     try {
         const dataAtual = new Date();
         const data = dataAtual.toLocaleDateString('en-CA');
@@ -534,25 +530,16 @@ app.get("/eventos-futuros", async function (req, res) {
             },
             order: [['Data', 'ASC']]
         });
-        res.render('eventosFuturosAdm', {
-            upcomingEvents: upcomingEvents.map(EventModel => EventModel.dataValues)
-        });
+        res.json(upcomingEvents);
     } catch (err) {
         console.error("Erro ao buscar eventos:", err);
         res.status(500).send("Erro ao carregar eventos.");
     }
 });
 
-app.get("/criar-eventos",  async function (req, res) {
-    try {
-        res.render('criarEventosAdm');
-    } catch (err) {
-        console.error("Erro ao buscar eventos:", err);
-        res.status(500).send("Erro ao carregar eventos.");
-    }
-});
 
-app.get("/relatorio-eventos",  async function (req, res) {
+app.get("/api/eventos/relatorio-eventos", verificarToken, async function (req, res) {
+
     try {
         const dataAtual = new Date();
         const dataLimite = new Date(dataAtual);
@@ -568,9 +555,7 @@ app.get("/relatorio-eventos",  async function (req, res) {
             order: [['Data', 'ASC']]
         });
 
-        res.render('relatorioEventosAdm', {
-            eventReports: eventReports.map(EventModel => EventModel.dataValues)
-        });
+        res.json(eventReports);
     } catch (err) {
         console.error("Erro ao buscar eventos:", err);
         res.status(500).send("Erro ao carregar eventos.");
@@ -580,8 +565,7 @@ app.get("/relatorio-eventos",  async function (req, res) {
 // #endregion
 
 // #region Rotas POST
-// #region Rotas POST
-app.post("/getParticipants",  async (req, res) => {
+app.post("/api/getParticipants", verificarToken, async (req, res) => {
     try {
         const { id_event } = req.body;
 
@@ -622,7 +606,7 @@ app.post("/getParticipants",  async (req, res) => {
 
 
 
-app.delete("/deleteEvent",  async (req, res) => {
+app.delete("/api/deleteEvent", verificarToken, async (req, res) => {
     try {
         const { event_id } = req.body;
 
@@ -634,8 +618,7 @@ app.delete("/deleteEvent",  async (req, res) => {
         });
 
         if (deletedRows > 0) {
-            console.log("Evento deletado com sucesso!");
-            res.redirect("/eventos-futuros")
+            res.status(200).json({ message: 'Evento excluido com sucesso!' });
         } else {
             console.log("Evento não encontrado.");
             res.status(404).send("Evento não encontrado.");
@@ -647,7 +630,7 @@ app.delete("/deleteEvent",  async (req, res) => {
 });
 
 
-app.put("/updateEventStatus",  async (req, res) => {
+app.put("/api/updateEventStatus", verificarToken, async (req, res) => {
     try {
         const { event_id, confirm } = req.body;
 
@@ -662,7 +645,7 @@ app.put("/updateEventStatus",  async (req, res) => {
 
         if (updatedRows > 0) {
             console.log(`Registros atualizados: ${updatedRows}`);
-            res.redirect("/solicitacoes");
+            res.status(200).json({ message: 'Status do evento atualizado com sucesso!' });
         } else {
             console.log("Evento não encontrado.");
             res.status(404).send("Evento não encontrado.");
@@ -673,8 +656,41 @@ app.put("/updateEventStatus",  async (req, res) => {
     }
 });
 
+app.post("/api/createEvent", verificarToken, async (req, res) => {
+    try {
+        const {
+            event_ID,
+            event_name,
+            event_description,
+            event_date,
+            event_time,
+            event_slots,
+            event_location,
+            event_duration,
+            event_responsible
+        } = req.body;
 
-app.put("/editData",  async (req, res) => {
+        const createEvents = await EventModel.create(
+            {
+                Nome: event_name,
+                Descricao: event_description,
+                Status: 'aprovado',
+                Data: event_date,
+                Horario: event_time,
+                Num__Vagas: event_slots,
+                Local: event_location,
+                Duracao: event_duration,
+                Nome_Responsavel: event_responsible
+            });
+        console.log(`Registros criados:` + createEvents);
+        res.status(200).json({ message: 'O evento foi criado com sucesso!' });
+    } catch (error) {
+        console.error("Erro ao processar os dados:", error);
+        res.status(500).send("Erro ao processar a solicitação.");
+    }
+});
+
+app.put("/api/editData", verificarToken, async (req, res) => {
     try {
         const {
             event_ID,
@@ -705,49 +721,15 @@ app.put("/editData",  async (req, res) => {
                 where: { ID_Evento: event_ID }
             });
         console.log(`Registros atualizados: ${updatedRows}`);
-        res.redirect("/eventos-futuros");
+        res.status(200).json({ message: 'O evento foi atualizado com sucesso!' });
     } catch (error) {
         console.error("Erro ao processar os dados:", error);
         res.status(500).send("Erro ao processar a solicitação.");
     }
 });
 
-app.post("/createData",  async (req, res) => {
-    try {
-        const {
-            event_name,
-            event_description,
-            event_date,
-            event_time,
-            event_slots,
-            event_location,
-            event_duration,
-            event_responsible
-        } = req.body;
 
-        // Criação do evento no banco
-        const event = await EventModel.create({
-            Nome: event_name,
-            Descricao: event_description,
-            Status: 'aprovado',
-            Data: event_date,
-            Horario: event_time,
-            Num__Vagas: event_slots,
-            Local: event_location,
-            Duracao: event_duration,
-            Nome_Responsavel: event_responsible
-        });
-
-        console.log(`Evento criado com ID: ${event.id}`);
-
-        res.redirect("/eventos-futuros");
-    } catch (error) {
-        console.error("Erro ao processar os dados:", error);
-        res.status(500).send("Erro ao processar a solicitação.");
-    }
-});
-
-app.post("/procurarEvento", function (req, res) {
+app.post("/api/procurar-evento", verificarToken, function (req, res) {
 
     let whereCondition = {};
 
@@ -763,13 +745,19 @@ app.post("/procurarEvento", function (req, res) {
     EventModel.findAll({
         where: whereCondition
     }).then(function (eventReports) {
-        res.render('relatorioEventosAdm', {
-            eventReports: eventReports.map(Evento => Evento.dataValues)
-        });
+        res.json(eventReports)
     });
 });
 
+app.post("/api/verificar-token", verificarToken, function (req, res) {
+
+    res.status(200).json();
+})
+
 // #endregion
+
+// #endregion //
+
 
 
 app.listen(port, () => {
