@@ -330,9 +330,12 @@ app.get('/api/eventos', (req, res) => {
 
     connection.query(query, (err, results) => {
         if (err) {
-            res.status(500).json({ error: 'Erro ao buscar eventos' });
+            console.error('Erro na consulta ao banco de dados:', err); // Log do erro no terminal
+            res.status(500).json({ error: 'Erro ao buscar eventos', details: err.message }); // Inclui detalhes do erro na resposta
             return;
         }
+
+        console.log('Resultados da consulta:', results); // Log dos resultados no terminal
         res.json(results); // Retorna apenas os eventos aprovados e futuros em formato JSON
     });
 });
