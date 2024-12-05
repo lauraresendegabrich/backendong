@@ -1,6 +1,6 @@
 const bd = require('./db');
 
-const Evento = bd.sequelize.define('evento', {
+const Evento = bd.sequelize.define('Evento', {
     ID_Evento: {
         type: bd.Sequelize.INTEGER,
         primaryKey: true,

@@ -177,7 +177,7 @@ app.post('/login', (req, res) => {
         return res.status(400).send({ message: 'Email e senha são obrigatórios.' });
     }
 
-    const query = 'SELECT * FROM usuarios WHERE Email = ?';
+    const query = 'SELECT * FROM Usuarios WHERE Email = ?';
     connection.query(query, [email], async (err, results) => {
         if (err) {
             console.error('Erro ao verificar login no banco de dados:', err);
@@ -217,7 +217,7 @@ app.get('/perfil', verificarToken, (req, res) => {
     const userId = req.userId; // ID do usuário extraído do token
 
     // Busca as informações do usuário no banco de dados
-    const query = 'SELECT * FROM usuarios WHERE id = ?';
+    const query = 'SELECT * FROM Usuarios WHERE id = ?';
     connection.query(query, [userId], (err, results) => {
         if (err) {
             console.error("Erro ao buscar o perfil do usuário:", err);
@@ -238,7 +238,7 @@ app.get('/perfil', verificarToken, (req, res) => {
 app.put('/perfil', verificarToken, (req, res) => {
     const userId = req.userId;
     const { nome, sobrenome, telefone, email } = req.body;
-    const updateQuery = 'UPDATE usuarios SET Nome = ?, Sobrenome = ?, Telefone = ?, Email = ? WHERE id = ?';
+    const updateQuery = 'UPDATE Usuarios SET Nome = ?, Sobrenome = ?, Telefone = ?, Email = ? WHERE id = ?';
     connection.query(updateQuery, [nome, sobrenome, telefone, email, userId], (err) => {
         if (err) return res.status(500).send({ message: 'Erro ao atualizar o perfil do usuário.' });
         res.status(200).send({ message: 'Perfil atualizado com sucesso.' });
@@ -253,7 +253,7 @@ app.post('/adminLogin', (req, res) => {
         return res.status(400).send({ message: 'Email e senha são obrigatórios.' });
     }
 
-    const query = 'SELECT * FROM adm WHERE Email = ?';
+    const query = 'SELECT * FROM Adm WHERE Email = ?';
     connection.query(query, [email], (err, results) => {
         if (err) {
             console.error('Erro ao verificar login do administrador:', err);
@@ -304,7 +304,7 @@ app.post('/solicitarEvento', verificarToken, (req, res) => {
 
     // Consulta para inserir o evento no banco de dados
     const insertQuery = `
-        INSERT INTO evento (ID_Usuario, Nome, Descricao, Status, Data, Horario, Num_Vagas, Local, Duracao, Nome_Responsavel)
+        INSERT INTO Evento (ID_Usuario, Nome, Descricao, Status, Data, Horario, Num_Vagas, Local, Duracao, Nome_Responsavel)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
@@ -352,8 +352,8 @@ app.post('/api/eventos/:eventoID/inscrever', (req, res) => {
     const vagasQuery = `
         SELECT 
             e.Num_Vagas - COUNT(ie.ID_Inscricao) AS Vagas_Disponiveis
-        FROM evento e
-        LEFT JOIN inscrever_evento ie ON e.ID_Evento = ie.ID_Evento
+        FROM Evento e
+        LEFT JOIN Inscrever_Evento ie ON e.ID_Evento = ie.ID_Evento
         WHERE e.ID_Evento = ?
         GROUP BY e.Num_Vagas
     `;
@@ -376,7 +376,7 @@ app.post('/api/eventos/:eventoID/inscrever', (req, res) => {
 
         // Verificar duplicação de inscrições
         const checkQuery = `
-            SELECT * FROM inscrever_evento 
+            SELECT * FROM Inscrever_Evento 
             WHERE ID_Evento = ? AND ID_Usuario = ?
         `;
 
@@ -392,7 +392,7 @@ app.post('/api/eventos/:eventoID/inscrever', (req, res) => {
 
             // Inserir inscrição
             const insertQuery = `
-                INSERT INTO inscrever_evento (ID_Evento, ID_Usuario)
+                INSERT INTO Inscrever_Evento (ID_Evento, ID_Usuario)
                 VALUES (?, ?)
             `;
 
@@ -416,7 +416,7 @@ app.delete('/api/eventos/:eventId', verificarToken, (req, res) => {
     const userId = req.userId;
 
     // Verificar se o evento existe e pertence ao usuário
-    const checkEventQuery = 'SELECT * FROM evento WHERE ID_Evento = ? AND ID_Usuario = ?';
+    const checkEventQuery = 'SELECT * FROM Evento WHERE ID_Evento = ? AND ID_Usuario = ?';
     connection.query(checkEventQuery, [eventId, userId], (err, results) => {
         if (err) {
             console.error('Erro ao verificar evento para exclusão:', err);
@@ -428,7 +428,7 @@ app.delete('/api/eventos/:eventId', verificarToken, (req, res) => {
         }
 
         // Excluir o evento
-        const deleteEventQuery = 'DELETE FROM evento WHERE ID_Evento = ?';
+        const deleteEventQuery = 'DELETE FROM Evento WHERE ID_Evento = ?';
         connection.query(deleteEventQuery, [eventId], (err) => {
             if (err) {
                 console.error('Erro ao excluir evento:', err);
@@ -450,7 +450,7 @@ app.get('/api/eventos2', verificarToken, (req, res) => {
     }
 
     // Consulta SQL para buscar todos os eventos do usuário
-    const query = 'SELECT * FROM evento WHERE ID_Usuario = ?';
+    const query = 'SELECT * FROM Evento WHERE ID_Usuario = ?';
     connection.query(query, [userId], (err, results) => {
         if (err) {
             console.error('Erro ao buscar eventos:', err);

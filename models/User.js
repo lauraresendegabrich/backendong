@@ -1,6 +1,6 @@
 const bd = require('./db');
 
-const UserModel = bd.sequelize.define('usuarios', {
+const UserModel = bd.sequelize.define('Usuarios', {
     id: {
         type: bd.Sequelize.INTEGER,
         primaryKey: true,

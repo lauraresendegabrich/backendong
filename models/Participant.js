@@ -1,6 +1,6 @@
 const bd = require('./db');
 
-const ParticipantModel = bd.sequelize.define('inscrever_evento', {
+const ParticipantModel = bd.sequelize.define('Inscrever_Evento', {
     ID_Inscricao: {
         type: bd.Sequelize.INTEGER,
         primaryKey: true,
