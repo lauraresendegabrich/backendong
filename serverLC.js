@@ -277,6 +277,8 @@ app.post('/adminLogin', (req, res) => {
 
             // Comparar a senha simples com a senha armazenada diretamente
             if (password === admin.Senha) {
+                // Gera o token JWT com o ID do usuário
+                const token = gerarToken(user.id);
                 return res.status(200).send({ message: 'Login de administrador bem-sucedido' });
             } else {
                 return res.status(401).send({ message: 'Usuário ou senha de administrador incorretos' });
