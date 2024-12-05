@@ -55,7 +55,7 @@ const Evento = bd.sequelize.define('Evento', {
         allowNull: true
     },
 }, {
-    tableName: 'evento',
+    tableName: 'Evento',
     freezeTableName: true,
 });
 

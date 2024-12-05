@@ -11,7 +11,7 @@ const ParticipantModel = bd.sequelize.define('Inscrever_Evento', {
         type: bd.Sequelize.INTEGER,
         allowNull: false,
         references: {
-            model: 'eventos', 
+            model: 'Eventos', 
             key: 'ID_Evento'
         }
     },
@@ -19,12 +19,12 @@ const ParticipantModel = bd.sequelize.define('Inscrever_Evento', {
         type: bd.Sequelize.INTEGER,
         allowNull: false,
         references: {
-            model: 'usuarios', 
+            model: 'Usuarios', 
             key: 'ID_Usuario'
         }
     }
 }, {
-    tableName: 'inscrever_evento', 
+    tableName: 'Inscrever_Evento', 
     timestamps: false 
 });
 

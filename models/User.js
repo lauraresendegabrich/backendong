@@ -28,7 +28,7 @@ const UserModel = bd.sequelize.define('Usuarios', {
         allowNull: true
     }
 }, {
-    tableName: 'usuarios', 
+    tableName: 'Usuarios', 
     timestamps: false
 });
 
