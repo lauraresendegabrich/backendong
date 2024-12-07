@@ -677,7 +677,7 @@ app.post("/api/createEvent", verificarToken, async (req, res) => {
                 Status: 'aprovado',
                 Data: event_date,
                 Horario: event_time,
-                Num__Vagas: event_slots,
+                Num_Vagas: event_slots,
                 Local: event_location,
                 Duracao: event_duration,
                 Nome_Responsavel: event_responsible
